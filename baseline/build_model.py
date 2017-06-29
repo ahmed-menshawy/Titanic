@@ -10,12 +10,13 @@ import pandas as pd
 from feature_engineering import engineering
 from sklearn import linear_model
 
-def build_predict():
+
+def build_model():
     # 数据清洗、特征工程
     train_df = engineering(pd.read_csv("../data/train.csv"))
 
     # 用 正则表达式 取出我们要的属性值
-    train_np = train_df.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*').as_matrix()
+    train_np = train_df.filter(regex='Survived|Age.*|SibSp|Parch|Fare.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*').as_matrix()
 
     X = train_np[:, 1:]
     y = train_np[:, 0]
@@ -24,12 +25,14 @@ def build_predict():
     clf = linear_model.LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
     clf.fit(X, y)
 
+    print pd.DataFrame({"columns": list(train_df.columns)[2:], "coef": list(clf.coef_.T)})
+
     # 预测
     test_df = pd.read_csv("../data/test.csv")
     test_df.loc[test_df.Fare.isnull(), 'Fare'] = 0
     test_df = engineering(test_df)
 
-    test_X = test_df.filter(regex='Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*').as_matrix()
+    test_X = test_df.filter(regex='Age.*|SibSp|Parch|Fare.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*').as_matrix()
     predictions = clf.predict(test_X)
 
     result = pd.DataFrame(
@@ -37,4 +40,4 @@ def build_predict():
     result.to_csv("../data/logistic_regression_predictions.csv", index=False)
 
 if __name__ == '__main__':
-    build_predict()
+    build_model()

@@ -72,4 +72,5 @@ def engineering(dataframe):
     return rescale_features(df)
 
 if __name__ == '__main__':
-    engineering(pd.read_csv("../data/train.csv"))
+    df = pd.read_csv("../data/train.csv")
+    print engineering(df).info()
